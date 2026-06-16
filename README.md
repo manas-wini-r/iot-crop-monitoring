@@ -1,16 +1,60 @@
-# React + Vite
+## Setup & Run
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Backend
+```bash
+cd backend
+pip install -r requirements.txt
+python app.py
+```
+API runs at `http://localhost:5000`
 
-Currently, two official plugins are available:
+### Frontend
+```bash
+npm install
+npm run dev
+```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### ESP32
+- Open `esp code/sensordht/sensordht.ino` in Arduino IDE
+- Update WiFi credentials and Firebase config
+- Flash to ESP32
 
-## React Compiler
+## API Endpoints
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/predict` | Takes sensor readings, returns soil type + crop recommendation |
+| GET | `/health` | Check if models are loaded |
 
-## Expanding the ESLint configuration
+### Sample Request
+```json
+{
+  "N": 120, "P": 80, "K": 100,
+  "pH": 6.5, "temp": 28,
+  "humidity": 70, "moisture": 60, "rainfall": 150
+}
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Sample Response
+```json
+{
+  "predicted_soil": "Loamy",
+  "recommended_crop": "Rice",
+  "top_suggestions": [
+    { "crop": "Rice", "probability": 87.4 },
+    { "crop": "Wheat", "probability": 8.2 },
+    { "crop": "Maize", "probability": 4.4 }
+  ]
+}
+```
+
+## ML Models
+
+- **Algorithm:** TabNet (attention-based deep learning for tabular data)
+- **Soil model:** Classifies soil type from sensor readings
+- **Crop model:** Recommends crop based on soil type + sensor features
+- **Artifacts:** Saved as `.joblib` (scalers/encoders) and `.zip` (TabNet models)
+
+## Author
+
+R Manaswini — [LinkedIn](https://linkedin.com/in/manaswini-ramaswamy) | [GitHub](https://github.com/manas-wini-r)
